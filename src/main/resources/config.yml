@@ -1,0 +1,27 @@
+#primo...secondo...terzo sono i giorni
+#tipo può essere chiave/denaro
+#argomento è per chiave il comando per il give con &player% come variabile
+#argomento è per denaro il numero di soldi (numero intero senza k/kk)
+
+bonus:
+ primo:
+     tipo: "denaro"
+     argomento: 100
+ secondo:
+     tipo: "denaro"
+     argomento: 200
+ terzo:
+     tipo: "chiave"
+     argomento: "cc P nomecrate %player%"
+ quarto:
+     tipo: "denaro"
+     argomento: 300
+ quinto:
+     tipo: "denaro"
+     argomento: 1000
+ sesto:
+     tipo: "denaro"
+     argomento: 4500
+ settimo:
+     tipo: "denaro"
+     argomento: 7000
