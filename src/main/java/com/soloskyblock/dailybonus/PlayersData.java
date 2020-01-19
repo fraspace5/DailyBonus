@@ -1,5 +1,5 @@
 /*
- *Copyright (C) 2020 Fraspace5
+ * Copyright (C) 2020 Fraspace5
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,20 +16,21 @@
  */
 package com.soloskyblock.dailybonus;
 
+
 /**
  *
- * @author fraspace5
+ * @author Fraspace5
  */
-public class BonusData {
+public class PlayersData {
 
-    public String tipo;
+    public Integer bonus;
 
-    public String argomento;
+    public Long time;
 
-    public BonusData(String ti, String arg) {
+    public PlayersData(Integer bo, Long ti) {
 
-        tipo = ti;
-        argomento = arg;
+        bonus = bo;
+        time = ti;
 
     }
 

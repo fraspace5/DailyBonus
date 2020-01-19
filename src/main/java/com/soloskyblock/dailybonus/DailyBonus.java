@@ -1,7 +1,18 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (C) 2020 Fraspace5
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.soloskyblock.dailybonus;
 
@@ -40,7 +51,7 @@ public class DailyBonus extends JavaPlugin implements Listener {
 
     public static HashMap<String, BonusData> bonus = new HashMap<>();
 
-    public static HashMap<UUID, Integer> players = new HashMap<>();
+    public static HashMap<UUID, PlayersData> players = new HashMap<>();
 
     private File data;
 
@@ -82,276 +93,169 @@ public class DailyBonus extends JavaPlugin implements Listener {
     @EventHandler
     public static void onJoin(PlayerJoinEvent e) {
         Player pl = e.getPlayer();
-//tempo passato in ore
-        Long tempopassato = (System.currentTimeMillis() - pl.getFirstPlayed()) / 36000000;
+        //tempo passato in ore
+        if (!players.containsKey(pl.getUniqueId())) {
+            players.put(pl.getUniqueId(), new PlayersData(0, System.currentTimeMillis()));
+        }
 
+        Long tempopassato = (System.currentTimeMillis() - players.get(pl.getUniqueId()).time) / 36000000;
+
+        PlayersData pdata = players.get(pl.getUniqueId());
+        Long sametime = pdata.time;
         if (tempopassato < 24) {
             BonusData b = bonus.get("primo");
 
-            if (players.containsKey(pl.getUniqueId())) {
-                if (players.get(pl.getUniqueId()).equals(0)) {
+            if (pdata.bonus.equals(0)) {
 
-                    if (b.tipo.equalsIgnoreCase("chiave")) {
-                        Bukkit.dispatchCommand(pl, b.argomento.replace("%player%", pl.getName()));
-                        pl.sendMessage(ChatColor.YELLOW + "[DailyBonus]: Ciao, oggi hai guadagnato una nuova chiave!");
-                        players.remove(pl.getUniqueId());
-                        players.put(pl.getUniqueId(), 1);
-                    } else {
-
-                        pl.sendMessage(ChatColor.YELLOW + "[DailyBonus]: Ciao, oggi hai guadagnato" + b.argomento.toString() + " soldi!");
-                        OfflinePlayer p = Bukkit.getOfflinePlayer(pl.getUniqueId());
-                        Vault.addMoney(p, parseLong(b.argomento));
-
-                        players.remove(pl.getUniqueId());
-                        players.put(pl.getUniqueId(), 1);
-                    }
-
-                }
-
-            } else {
                 if (b.tipo.equalsIgnoreCase("chiave")) {
                     Bukkit.dispatchCommand(pl, b.argomento.replace("%player%", pl.getName()));
                     pl.sendMessage(ChatColor.YELLOW + "[DailyBonus]: Ciao, oggi hai guadagnato una nuova chiave!");
+
                     players.remove(pl.getUniqueId());
-                    players.put(pl.getUniqueId(), 1);
+                    players.put(pl.getUniqueId(), new PlayersData(1, sametime));
                 } else {
 
                     pl.sendMessage(ChatColor.YELLOW + "[DailyBonus]: Ciao, oggi hai guadagnato" + b.argomento.toString() + " soldi!");
                     OfflinePlayer p = Bukkit.getOfflinePlayer(pl.getUniqueId());
                     Vault.addMoney(p, parseLong(b.argomento));
+
                     players.remove(pl.getUniqueId());
-                    players.put(pl.getUniqueId(), 1);
+                    players.put(pl.getUniqueId(), new PlayersData(1, sametime));
                 }
+
             }
 
 //primo giorno
         } else if (tempopassato >= 24 && tempopassato < 48) {
             BonusData b = bonus.get("secondo");
 
-            if (players.containsKey(pl.getUniqueId())) {
-                if (players.get(pl.getUniqueId()).equals(1)) {
+            if (pdata.bonus.equals(1)) {
 
-                    if (b.tipo.equalsIgnoreCase("chiave")) {
-                        Bukkit.dispatchCommand(pl, b.argomento.replace("%player%", pl.getName()));
-                        pl.sendMessage(ChatColor.YELLOW + "[DailyBonus]: Ciao, oggi hai guadagnato una nuova chiave!");
-                        players.remove(pl.getUniqueId());
-                        players.put(pl.getUniqueId(), 2);
-                    } else {
-
-                        pl.sendMessage(ChatColor.YELLOW + "[DailyBonus]: Ciao, oggi hai guadagnato" + b.argomento.toString() + " soldi!");
-                        OfflinePlayer p = Bukkit.getOfflinePlayer(pl.getUniqueId());
-                        Vault.addMoney(p, parseLong(b.argomento));
-                        players.remove(pl.getUniqueId());
-                        players.put(pl.getUniqueId(), 2);
-                    }
-
-                }
-
-            } else {
                 if (b.tipo.equalsIgnoreCase("chiave")) {
                     Bukkit.dispatchCommand(pl, b.argomento.replace("%player%", pl.getName()));
                     pl.sendMessage(ChatColor.YELLOW + "[DailyBonus]: Ciao, oggi hai guadagnato una nuova chiave!");
                     players.remove(pl.getUniqueId());
-                    players.put(pl.getUniqueId(), 2);
+                    players.put(pl.getUniqueId(), new PlayersData(2, sametime));
                 } else {
 
                     pl.sendMessage(ChatColor.YELLOW + "[DailyBonus]: Ciao, oggi hai guadagnato" + b.argomento.toString() + " soldi!");
                     OfflinePlayer p = Bukkit.getOfflinePlayer(pl.getUniqueId());
                     Vault.addMoney(p, parseLong(b.argomento));
                     players.remove(pl.getUniqueId());
-                    players.put(pl.getUniqueId(), 1);
+                    players.put(pl.getUniqueId(), new PlayersData(2, sametime));
                 }
+
             }
+
             //secondo giorno
         } else if (tempopassato >= 48 && tempopassato < 72) {
 //terzo giorno
             BonusData b = bonus.get("terzo");
 
-            if (players.containsKey(pl.getUniqueId())) {
-                if (players.get(pl.getUniqueId()).equals(2)) {
+            if (pdata.bonus.equals(2)) {
 
-                    if (b.tipo.equalsIgnoreCase("chiave")) {
-                        Bukkit.dispatchCommand(pl, b.argomento.replace("%player%", pl.getName()));
-                        pl.sendMessage(ChatColor.YELLOW + "[DailyBonus]: Ciao, oggi hai guadagnato una nuova chiave!");
-                        players.remove(pl.getUniqueId());
-                        players.put(pl.getUniqueId(), 3);
-                    } else {
-
-                        pl.sendMessage(ChatColor.YELLOW + "[DailyBonus]: Ciao, oggi hai guadagnato" + b.argomento.toString() + " soldi!");
-                        OfflinePlayer p = Bukkit.getOfflinePlayer(pl.getUniqueId());
-                        Vault.addMoney(p, parseLong(b.argomento));
-                        players.remove(pl.getUniqueId());
-                        players.put(pl.getUniqueId(), 3);
-                    }
-
-                }
-
-            } else {
                 if (b.tipo.equalsIgnoreCase("chiave")) {
                     Bukkit.dispatchCommand(pl, b.argomento.replace("%player%", pl.getName()));
                     pl.sendMessage(ChatColor.YELLOW + "[DailyBonus]: Ciao, oggi hai guadagnato una nuova chiave!");
                     players.remove(pl.getUniqueId());
-                    players.put(pl.getUniqueId(), 3);
+                    players.put(pl.getUniqueId(), new PlayersData(3, sametime));
                 } else {
 
                     pl.sendMessage(ChatColor.YELLOW + "[DailyBonus]: Ciao, oggi hai guadagnato" + b.argomento.toString() + " soldi!");
                     OfflinePlayer p = Bukkit.getOfflinePlayer(pl.getUniqueId());
                     Vault.addMoney(p, parseLong(b.argomento));
                     players.remove(pl.getUniqueId());
-                    players.put(pl.getUniqueId(), 3);
+                    players.put(pl.getUniqueId(), new PlayersData(3, sametime));
                 }
+
             }
+
         } else if (tempopassato >= 72 && tempopassato < 96) {
 //quarto giorno
             BonusData b = bonus.get("quarto");
 
-            if (players.containsKey(pl.getUniqueId())) {
-                if (players.get(pl.getUniqueId()).equals(3)) {
+            if (pdata.bonus.equals(3)) {
 
-                    if (b.tipo.equalsIgnoreCase("chiave")) {
-                        Bukkit.dispatchCommand(pl, b.argomento.replace("%player%", pl.getName()));
-                        pl.sendMessage(ChatColor.YELLOW + "[DailyBonus]: Ciao, oggi hai guadagnato una nuova chiave!");
-                        players.remove(pl.getUniqueId());
-                        players.put(pl.getUniqueId(), 4);
-                    } else {
-
-                        pl.sendMessage(ChatColor.YELLOW + "[DailyBonus]: Ciao, oggi hai guadagnato" + b.argomento.toString() + " soldi!");
-                        OfflinePlayer p = Bukkit.getOfflinePlayer(pl.getUniqueId());
-                        Vault.addMoney(p, parseLong(b.argomento));
-                        players.remove(pl.getUniqueId());
-                        players.put(pl.getUniqueId(), 4);
-                    }
-
-                }
-
-            } else {
                 if (b.tipo.equalsIgnoreCase("chiave")) {
                     Bukkit.dispatchCommand(pl, b.argomento.replace("%player%", pl.getName()));
                     pl.sendMessage(ChatColor.YELLOW + "[DailyBonus]: Ciao, oggi hai guadagnato una nuova chiave!");
                     players.remove(pl.getUniqueId());
-                    players.put(pl.getUniqueId(), 4);
+                    players.put(pl.getUniqueId(), new PlayersData(4, sametime));
                 } else {
 
                     pl.sendMessage(ChatColor.YELLOW + "[DailyBonus]: Ciao, oggi hai guadagnato" + b.argomento.toString() + " soldi!");
                     OfflinePlayer p = Bukkit.getOfflinePlayer(pl.getUniqueId());
                     Vault.addMoney(p, parseLong(b.argomento));
                     players.remove(pl.getUniqueId());
-                    players.put(pl.getUniqueId(), 4);
+                    players.put(pl.getUniqueId(), new PlayersData(4, sametime));
                 }
+
             }
+
         } else if (tempopassato >= 96 && tempopassato < 120) {
 //quinto giorno
             BonusData b = bonus.get("quinto");
 
-            if (players.containsKey(pl.getUniqueId())) {
-                if (players.get(pl.getUniqueId()).equals(4)) {
+            if (pdata.bonus.equals(4)) {
 
-                    if (b.tipo.equalsIgnoreCase("chiave")) {
-                        Bukkit.dispatchCommand(pl, b.argomento.replace("%player%", pl.getName()));
-                        pl.sendMessage(ChatColor.YELLOW + "[DailyBonus]: Ciao, oggi hai guadagnato una nuova chiave!");
-                        players.remove(pl.getUniqueId());
-                        players.put(pl.getUniqueId(), 5);
-                    } else {
-
-                        pl.sendMessage(ChatColor.YELLOW + "[DailyBonus]: Ciao, oggi hai guadagnato" + b.argomento.toString() + " soldi!");
-                        OfflinePlayer p = Bukkit.getOfflinePlayer(pl.getUniqueId());
-                        Vault.addMoney(p, parseLong(b.argomento));
-                        players.remove(pl.getUniqueId());
-                        players.put(pl.getUniqueId(), 5);
-                    }
-
-                }
-
-            } else {
                 if (b.tipo.equalsIgnoreCase("chiave")) {
                     Bukkit.dispatchCommand(pl, b.argomento.replace("%player%", pl.getName()));
                     pl.sendMessage(ChatColor.YELLOW + "[DailyBonus]: Ciao, oggi hai guadagnato una nuova chiave!");
                     players.remove(pl.getUniqueId());
-                    players.put(pl.getUniqueId(), 5);
+                    players.put(pl.getUniqueId(), new PlayersData(5, sametime));
                 } else {
 
                     pl.sendMessage(ChatColor.YELLOW + "[DailyBonus]: Ciao, oggi hai guadagnato" + b.argomento.toString() + " soldi!");
                     OfflinePlayer p = Bukkit.getOfflinePlayer(pl.getUniqueId());
                     Vault.addMoney(p, parseLong(b.argomento));
                     players.remove(pl.getUniqueId());
-                    players.put(pl.getUniqueId(), 5);
+                    players.put(pl.getUniqueId(), new PlayersData(5, sametime));
                 }
+
             }
+
         } else if (tempopassato >= 120 && tempopassato < 144) {
 //sesto giorno
             BonusData b = bonus.get("sesto");
 
-            if (players.containsKey(pl.getUniqueId())) {
-                if (players.get(pl.getUniqueId()).equals(5)) {
+            if (pdata.bonus.equals(5)) {
 
-                    if (b.tipo.equalsIgnoreCase("chiave")) {
-                        Bukkit.dispatchCommand(pl, b.argomento.replace("%player%", pl.getName()));
-                        pl.sendMessage(ChatColor.YELLOW + "[DailyBonus]: Ciao, oggi hai guadagnato una nuova chiave!");
-                        players.remove(pl.getUniqueId());
-                        players.put(pl.getUniqueId(), 6);
-                    } else {
-
-                        pl.sendMessage(ChatColor.YELLOW + "[DailyBonus]: Ciao, oggi hai guadagnato" + b.argomento.toString() + " soldi!");
-                        OfflinePlayer p = Bukkit.getOfflinePlayer(pl.getUniqueId());
-                        Vault.addMoney(p, parseLong(b.argomento));
-                        players.remove(pl.getUniqueId());
-                        players.put(pl.getUniqueId(), 6);
-                    }
-
-                }
-
-            } else {
                 if (b.tipo.equalsIgnoreCase("chiave")) {
                     Bukkit.dispatchCommand(pl, b.argomento.replace("%player%", pl.getName()));
                     pl.sendMessage(ChatColor.YELLOW + "[DailyBonus]: Ciao, oggi hai guadagnato una nuova chiave!");
                     players.remove(pl.getUniqueId());
-                    players.put(pl.getUniqueId(), 6);
+                    players.put(pl.getUniqueId(), new PlayersData(6, sametime));
                 } else {
 
                     pl.sendMessage(ChatColor.YELLOW + "[DailyBonus]: Ciao, oggi hai guadagnato" + b.argomento.toString() + " soldi!");
                     OfflinePlayer p = Bukkit.getOfflinePlayer(pl.getUniqueId());
                     Vault.addMoney(p, parseLong(b.argomento));
                     players.remove(pl.getUniqueId());
-                    players.put(pl.getUniqueId(), 6);
+                    players.put(pl.getUniqueId(), new PlayersData(6, sametime));
                 }
+
             }
+
         } else if (tempopassato >= 144 && tempopassato < 168) {
 //settimo giorno
             BonusData b = bonus.get("settimo");
 
-            if (players.containsKey(pl.getUniqueId())) {
-                if (players.get(pl.getUniqueId()).equals(6)) {
+            if (pdata.bonus.equals(6)) {
 
-                    if (b.tipo.equalsIgnoreCase("chiave")) {
-                        Bukkit.dispatchCommand(pl, b.argomento.replace("%player%", pl.getName()));
-                        pl.sendMessage(ChatColor.YELLOW + "[DailyBonus]: Ciao, oggi hai guadagnato una nuova chiave!");
-                        players.remove(pl.getUniqueId());
-                        players.put(pl.getUniqueId(), 7);
-                    } else {
-
-                        pl.sendMessage(ChatColor.YELLOW + "[DailyBonus]: Ciao, oggi hai guadagnato" + b.argomento.toString() + " soldi!");
-                        OfflinePlayer p = Bukkit.getOfflinePlayer(pl.getUniqueId());
-                        Vault.addMoney(p, parseLong(b.argomento));
-                        players.remove(pl.getUniqueId());
-                        players.put(pl.getUniqueId(), 7);
-                    }
-
-                }
-
-            } else {
                 if (b.tipo.equalsIgnoreCase("chiave")) {
                     Bukkit.dispatchCommand(pl, b.argomento.replace("%player%", pl.getName()));
                     pl.sendMessage(ChatColor.YELLOW + "[DailyBonus]: Ciao, oggi hai guadagnato una nuova chiave!");
                     players.remove(pl.getUniqueId());
-                    players.put(pl.getUniqueId(), 7);
+                    players.put(pl.getUniqueId(), new PlayersData(7, sametime));
                 } else {
 
                     pl.sendMessage(ChatColor.YELLOW + "[DailyBonus]: Ciao, oggi hai guadagnato" + b.argomento.toString() + " soldi!");
                     OfflinePlayer p = Bukkit.getOfflinePlayer(pl.getUniqueId());
                     Vault.addMoney(p, parseLong(b.argomento));
                     players.remove(pl.getUniqueId());
-                    players.put(pl.getUniqueId(), 7);
+                    players.put(pl.getUniqueId(), new PlayersData(7, sametime));
                 }
+
             }
 
         }
@@ -390,7 +294,7 @@ public class DailyBonus extends JavaPlugin implements Listener {
     public static void saveData(File file) throws FileNotFoundException {
         for (UUID data : players.keySet()) {
 
-            String storageData = data.toString() + ";" + players.get(data).toString();
+            String storageData = data.toString() + ";" + players.get(data).bonus.toString() + ";" + players.get(data).time.toString();
             try (PrintWriter out = new PrintWriter(new FileOutputStream(file))) {
                 out.println(storageData);
             }
@@ -404,7 +308,7 @@ public class DailyBonus extends JavaPlugin implements Listener {
                 String line = scanner.nextLine();
                 String[] s = line.split(";");
 
-                players.put(UUID.fromString(s[0]), parseInt(s[1]));
+                players.put(UUID.fromString(s[0]), new PlayersData(parseInt(s[1]), parseLong(s[2])));
             }
         }
     }

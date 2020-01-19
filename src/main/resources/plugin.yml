@@ -1,5 +1,6 @@
 version: 1.0
-name: ${project.artifactId}
+name: DailyBonus
 main: com.soloskyblock.dailybonus.DailyBonus
 author: Fraspace5
 description: DailyBonus!
+#Copyright (C) 2020 Fraspace5
